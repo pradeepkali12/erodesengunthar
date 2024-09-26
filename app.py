@@ -1,6 +1,5 @@
 import requests
 from scholarly import scholarly
-
 def extract_scholar_data(faculty_name, n=10):
     scholar_data = []
     print(f"Searching for publications by {faculty_name} on Google Scholar...")
@@ -18,14 +17,11 @@ def extract_scholar_data(faculty_name, n=10):
             pub_filled = scholarly.fill(publication)
             print(f"- {pub_filled['bib']['title']} ({pub_filled['bib'].get('pub_year', 'N/A')})")
             print(f"  Citations: {pub_filled.get('num_citations', 0)}")
-        
-        return True  
+
     except StopIteration:
         print(f"Author {faculty_name} not found on Google Scholar.")
-        return False  
     except Exception as e:
         print(f"Error occurred while fetching Google Scholar data: {e}")
-        return False 
 
 def extract_dblp_data(faculty_name, n=5):
     print(f"\nSearching for publications by {faculty_name} on DBLP...")
@@ -33,7 +29,7 @@ def extract_dblp_data(faculty_name, n=5):
         query_url = f'https://dblp.org/search/publ/api?q={faculty_name}&format=json'
 
         response = requests.get(query_url)
-        data = response.jso
+        data = response.json()
 
         if 'result' in data and 'hits' in data['result'] and 'hit' in data['result']['hits']:
             publications = data['result']['hits']['hit']
@@ -56,11 +52,10 @@ def extract_dblp_data(faculty_name, n=5):
         print(f"Error occurred while fetching DBLP data: {e}")
 
 def search_publications(faculty_name, n=5):
-    found_on_scholar = extract_scholar_data(faculty_name, n)
-    if not found_on_scholar:
-        extract_dblp_data(faculty_name, n)
+    extract_scholar_data(faculty_name, n)
+    extract_dblp_data(faculty_name, n)
 
 if __name__ == "__main__":
-    faculty_name = 'Benjamin W.J. Kwok'  
+    faculty_name = 'Benjamin W.J. Kwok' 
     n = 10  
     search_publications(faculty_name, n)
